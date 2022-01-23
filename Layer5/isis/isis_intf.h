@@ -8,7 +8,7 @@ typedef struct isis_intf_info_ {
 
 
 #define EXTRACT_INTF_INFO(intf_t) \
-    (isis_intf_info_t *) intf_t->intf_nw_props.isis_intf_info
+    ((isis_intf_info_t *) (intf_t->intf_nw_props.isis_intf_info))
 
 
 bool isis_is_protocol_enable_on_intf(interface_t *intf);
