@@ -94,11 +94,11 @@ struct node_ {
     /*Node Logging*/
     log_t log_info;
 
-	/*net-filter hooks DB*/
-	nf_hook_db_t nf_hook_db;
-
-	/*L2 net-filter hook (simplified) */
-	notif_chain_t layer2_proto_reg_db2;
+    /*net-filter hooks DB*/
+    nf_hook_db_t nf_hook_db;
+    
+    /*L2 net-filter hook (simplified) */
+    notif_chain_t layer2_proto_reg_db2;
     
     unsigned char *print_buff;
     
@@ -177,9 +177,11 @@ node_get_node_by_name(graph_t *topo, char *node_name){
     ITERATE_GLTHREAD_BEGIN(&topo->node_list, curr){
 
         node = graph_glue_to_node(curr);
-        if(strncmp(node->node_name, node_name, strlen(node_name)) == 0)
+        if(strncmp(node->node_name, node_name, strlen(node_name)) == 0) {
             return node;
+        }
     } ITERATE_GLTHREAD_END(&topo->node_list, curr);
+    printf("no node found with name %s\n", node_name);
     return NULL;
 }
 

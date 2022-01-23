@@ -85,7 +85,7 @@ int
 main(int argc, char **argv){
 
     tcp_ip_stack_pre_topology_create_initializations();
-    topo = cross_link_topology();
+    topo = build_square_topo();
     init_tcp_ip_stack();
     start_shell(); 
     return 0;

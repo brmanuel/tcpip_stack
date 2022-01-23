@@ -86,6 +86,9 @@ typedef struct node_nw_prop_{
     bool is_lb_addr_config;
     ip_add_t lb_addr; /*loopback address of node*/
 
+    /* L5 properties */
+    void *isis_node_info;
+    
     /*Timer Properties*/
     wheel_timer_t *wt;
 
@@ -95,8 +98,8 @@ typedef struct node_nw_prop_{
     /*Device level Appln DS*/
     nmp_t *nmp;
 
-	/* Traffic generation */
-	glthread_t traffic_gen_db_head;
+    /* Traffic generation */
+    glthread_t traffic_gen_db_head;
 } node_nw_prop_t;
 
 extern void init_arp_table(arp_table_t **arp_table);
@@ -166,6 +169,9 @@ typedef struct intf_nw_props_ {
     ip_add_t ip_add;
     char mask;
 
+    /* L5 properties */
+    void *isis_intf_info;
+    
     /*Interface Statistics*/
     uint32_t pkt_recv;
     uint32_t pkt_sent;

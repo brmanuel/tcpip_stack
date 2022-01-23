@@ -92,6 +92,7 @@ static cli_register_cb
 	{
 		ddcp_config_cli_tree,
 		nmp_config_cli_tree,
+                isis_config_cli_tree,
 		
         /*  Add more CB here */
         
@@ -1104,9 +1105,9 @@ nw_init_cli(){
                 init_param(&protocol, CMD, "protocol", 0, 0, INVALID, 0, "protocol");
                 libcli_register_param(&node_name, &protocol);
 				
-				/* config node <node-name> protocol....*/
-				cli_register_application_cli_trees(&protocol, 
-						cli_register_cb_arr_config_node_node_name_protocol_level);
+                /* config node <node-name> protocol....*/
+                cli_register_application_cli_trees(&protocol, 
+                                                   cli_register_cb_arr_config_node_node_name_protocol_level);
                 support_cmd_negation(&protocol);
             }
 

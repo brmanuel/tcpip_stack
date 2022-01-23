@@ -3,39 +3,51 @@ CFLAGS=-g
 TARGET:tcpstack.exe pkt_gen.exe
 LIBS=-lpthread -lcli -lrt -L CommandParser -lcli -L LinuxMemoryManager -lmm -L FSMImplementation -lfsm -L FireWall -lasa -lrt
 OBJS=gluethread/glthread.o \
-		  Tree/avl.o	   \
-		  graph.o 		   \
-		  topologies.o	   \
-		  net.o			   \
-		  comm.o		   \
-		  Layer2/layer2.o  \
-		  Layer2/arp.o	   \
-		  Layer3/layer3.o  \
-		  Layer3/netfilter.o \
-		  Layer3/rt_notif.o	\
-		  Layer4/layer4.o  \
-		  Layer5/layer5.o  \
-		  nwcli.o		   \
-		  utils.o		   \
-		  Layer2/l2switch.o \
-          libtimer/WheelTimer.o   \
-          libtimer/timerlib.o   \
-          Layer5/nbrship_mgmt/nbrship_mgmt.o \
-		  Layer5/ddcp/ddcp.o \
-		  Layer5/spf_algo/spf.o \
-		  tcp_stack_init.o	\
-		  tcp_ip_trace.o	\
- 		  tcpip_notif.o \
-		  notif.o	\
-		  EventDispatcher/event_dispatcher.o \
-		  tcp_ip_default_traps.o \
-		  ted/ted.o \
-		  LinuxMemoryManager/mm.o \
-		  #Layer2/stp/stp_state_machine.o \
-		  Layer2/stp/stp_bpdu.o \
-		  Layer2/stp/stp_init.o \
-		  Layer2/stp/stp_vlandb.o \
+     Tree/avl.o	   \
+     graph.o 		   \
+     topologies.o	   \
+     net.o			   \
+     comm.o		   \
+     Layer2/layer2.o  \
+     Layer2/arp.o	   \
+     Layer3/layer3.o  \
+     Layer3/netfilter.o \
+     Layer3/rt_notif.o	\
+     Layer4/layer4.o  \
+     Layer5/layer5.o  \
+     nwcli.o		   \
+     utils.o		   \
+     Layer2/l2switch.o \
+     libtimer/WheelTimer.o   \
+     libtimer/timerlib.o   \
+     Layer5/nbrship_mgmt/nbrship_mgmt.o \
+     Layer5/ddcp/ddcp.o \
+     Layer5/spf_algo/spf.o \
+     tcp_stack_init.o	\
+     tcp_ip_trace.o	\
+     tcpip_notif.o \
+     notif.o	\
+     EventDispatcher/event_dispatcher.o \
+     tcp_ip_default_traps.o \
+     ted/ted.o \
+     LinuxMemoryManager/mm.o \
+     Layer5/isis/isis_cli.o \
+     Layer5/isis/isis_rtr.o \
+     Layer5/isis/isis_intf.o \
+     #Layer2/stp/stp_state_machine.o \
+     Layer2/stp/stp_bpdu.o \
+     Layer2/stp/stp_init.o \
+     Layer2/stp/stp_vlandb.o \
 
+
+
+Layer5/isis/isis_rtr.o: Layer5/isis/isis_rtr.c Layer5/isis/isis_rtr.h
+	${CC} ${CFLAGS} -c -I . Layer5/isis/isis_rtr.c -o Layer5/isis/isis_rtr.o
+Layer5/isis/isis_intf.o: Layer5/isis/isis_intf.c Layer5/isis/isis_intf.h
+	${CC} ${CFLAGS} -c -I . Layer5/isis/isis_intf.c -o Layer5/isis/isis_intf.o
+
+Layer5/isis/isis_cli.o: Layer5/isis/isis_cli.c Layer5/isis/isis_cmdcodes.h
+	${CC} ${CFLAGS} -c -I . Layer5/isis/isis_cli.c -o Layer5/isis/isis_cli.o
 ted/ted.o:ted/ted.c
 	${CC} ${CFLAGS} -c -I . ted/ted.c -o ted/ted.o
 
@@ -47,7 +59,7 @@ EventDispatcher/event_dispatcher.o:EventDispatcher/event_dispatcher.c
 
 pkt_gen.exe:pkt_gen.o utils.o
 	${CC} ${CFLAGS} -I tcp_public.h pkt_gen.o utils.o -o pkt_gen.exe
-	
+
 pkt_gen.o:pkt_gen.c
 	${CC} ${CFLAGS} -c pkt_gen.c -o pkt_gen.o
 
@@ -119,7 +131,7 @@ Layer5/spf_algo/spf.o:Layer5/spf_algo/spf.c
 
 Layer4/layer4.o:Layer4/layer4.c
 	${CC} ${CFLAGS} -c -I . Layer4/layer4.c -o Layer4/layer4.o
-	
+
 Layer5/layer5.o:Layer5/layer5.c
 	${CC} ${CFLAGS} -c -I . Layer5/layer5.c -o Layer5/layer5.o
 
@@ -166,11 +178,12 @@ clean:
 	rm -f libtimer/*.o
 	rm -f EventDispatcher/*.o
 	rm -f Layer5/nbrship_mgmt/*.o
+	rm -f Layer5/isis/*.o
 #STP
 #	rm -f Layer2/stp/*.o
 all:
 	make
-	
+
 cleanall:
 	make clean
 	(cd CommandParser; make clean)
