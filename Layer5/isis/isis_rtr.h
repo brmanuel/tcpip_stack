@@ -12,6 +12,15 @@ typedef struct isis_node_info_ {
     ((isis_node_info_t *) (node_t->node_nw_prop.isis_node_info))
 
 
-bool isis_is_protocol_enable_on_node(node_t *node);
+bool
+isis_is_protocol_enable_on_node(node_t *node);
+
+
+int
+isis_init(node_t *node, op_mode enable_or_disable);
+
+
+void
+isis_show_node(node_t *node);
 
 #endif

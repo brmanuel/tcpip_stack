@@ -24,52 +24,6 @@ get_node_name(ser_buff_t *tlv_buf, char **name)
         
     } TLV_LOOP_END;
 }
-    
-static int
-isis_init(node_t *node, op_mode enable_or_disable)
-{
-    
-    switch(enable_or_disable) {
-    case CONFIG_DISABLE:
-        if (isis_is_protocol_enable_on_node(node)){
-            free(node->node_nw_prop.isis_node_info);
-            node->node_nw_prop.isis_node_info = NULL;
-        }
-        break;
-    case CONFIG_ENABLE:
-        if (!isis_is_protocol_enable_on_node(node)){
-            node->node_nw_prop.isis_node_info = (isis_node_info_t *) malloc(sizeof(isis_node_info_t));
-        }
-        break;
-    default:
-        assert(0 && "unexpected op_mode");
-    }
-    
-    return 0;
-}
-
-
-static int
-isis_intf_init(interface_t *intf, op_mode enable_or_disable)
-{
-    switch(enable_or_disable) {
-    case CONFIG_DISABLE:
-        if (isis_is_protocol_enable_on_intf(intf)){
-            free(intf->intf_nw_props.isis_intf_info);
-            intf->intf_nw_props.isis_intf_info = NULL;
-        }
-        break;
-    case CONFIG_ENABLE:
-        if (!isis_is_protocol_enable_on_intf(intf)){
-            intf->intf_nw_props.isis_intf_info = (isis_intf_info_t *) malloc(sizeof(isis_intf_info_t));        
-        }
-        break;
-    default:
-        assert(0 && "unexpected op_mode");
-    }
-     
-    return 0;
-}
 
 
 static int
@@ -109,9 +63,11 @@ isis_show_handler(param_t *param,
 
     switch(cmdcode) {
     case ISIS_SHOW_NODE:
-        
-        printf("Protocol ISIS: %s\n",
-               isis_is_protocol_enable_on_node(node) ? "Enabled" : "Disable");
+        isis_show_node(node);
+        interface_t *intf;
+        ITERATE_NODE_INTERFACES_BEGIN(node, intf) {
+            isis_show_intf(intf);
+        } ITERATE_NODE_INTERFACES_END(node, intf);
         break;
 
     default:
@@ -119,10 +75,6 @@ isis_show_handler(param_t *param,
     }
     
     return 0;
-}
-
-int isis_validate_interface_name(char *leaf_value){
-    return VALIDATION_SUCCESS;
 }
 
 static int
@@ -149,45 +101,20 @@ isis_config_interface_handler(param_t *param,
         
     } TLV_LOOP_END;
     
-    
     node_t *node = node_get_node_by_name(topo, node_name);
     assert(node);
-
+    
     switch(cmdcode) {
     case ISIS_CONFIG_INTERFACE_ENABLE:
-        for (uint32_t i = 0; i < MAX_INTF_PER_NODE; i++){
-            interface_t *intf = node->intf[i];
-            if (!intf) {
-                printf("No interface on node %s with name %s\n",
-                       node_name, intf_name);
-                return 1;
-            }
-            if (strncmp(intf->if_name, intf_name, strlen(intf_name)) == 0) {
-                isis_intf_init(intf, enable_or_disable);
-                break;
-            }
+        interface_t *intf = node_get_intf_by_name(node, intf_name);
+        if (!intf) {
+            printf("No interface on node %s with name %s\n",
+                   node_name, intf_name);
+            return -1;
         }
+        printf("configuring node %s interface %s\n", node_name, intf_name);
+        isis_intf_init(intf, enable_or_disable);
         break;
-    default:
-        assert(0 && "unexpected command code");
-    }
-    
-    return 0;    
-}
-
-
-static int 
-isis_config_interface_all_handler(param_t *param,
-                                  ser_buff_t *tlv_buf,
-                                  op_mode enable_or_disable)
-{
-    int cmdcode = EXTRACT_CMD_CODE(tlv_buf);
-    char *name;
-    get_node_name(tlv_buf, &name);
-    node_t *node = node_get_node_by_name(topo, name);
-    assert(node);
-
-    switch(cmdcode) {
     case ISIS_CONFIG_INTERFACE_ALL_ENABLE:
         for (uint32_t i = 0; i < MAX_INTF_PER_NODE; i++){
             interface_t *intf = node->intf[i];
@@ -202,6 +129,7 @@ isis_config_interface_all_handler(param_t *param,
     
     return 0;    
 }
+
 
 
 int isis_config_cli_tree(param_t *param)
@@ -224,7 +152,7 @@ int isis_config_cli_tree(param_t *param)
             init_param(&isis_proto_intf_all,
                        CMD,
                        "all",
-                       isis_config_interface_all_handler,
+                       isis_config_interface_handler,
                        0, INVALID, 0,
                        "Config isis interface all.");
             libcli_register_param(&isis_proto_intf, &isis_proto_intf_all);
@@ -237,7 +165,7 @@ int isis_config_cli_tree(param_t *param)
                        LEAF,
                        0,
                        isis_config_interface_handler,
-                       isis_validate_interface_name,
+                       0, // leaf value validator accepts all values.
                        STRING,
                        "intf-name",
                        "Config isis interface <intf-name>.");
